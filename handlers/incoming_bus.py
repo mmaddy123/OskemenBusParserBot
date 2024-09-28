@@ -21,7 +21,7 @@ async def get_incoming_bus_handler(message: types.Message, state: FSMContext):
 async def select_bus_stop_handler(message: types.Message, state: FSMContext):
     await state.update_data(bus_stop_name=message.text)
     await state.set_state(SelectBusStop.bus_stop_html)
-    await message.answer("Ищем нужный маршрут...")
+    await message.answer("Ищем доступные маршруты...")
     await get_incoming_bus_html_handler(message, state)
 
 
@@ -40,8 +40,12 @@ async def get_incoming_bus_html_handler(message: types.Message, state: FSMContex
     await state.update_data(bus_stop_html=bus_stop_html)
 
     bus_routes = get_bus_routes(bus_stop_html)
-    await message.answer(text="Выберите нужный маршрут", reply_markup=create_bus_routes_buttons(bus_routes))
-    await state.set_state(SelectBusStop.bus_route)
+    if bus_routes is None:
+        await message.answer(text="По данной остановке не найдено транспортных средств")
+        await state.clear()
+    else:
+        await message.answer(text="Выберите нужный маршрут", reply_markup=create_bus_routes_buttons(bus_routes))
+        await state.set_state(SelectBusStop.bus_route)
 
 
 @router.message(SelectBusStop.bus_route)
@@ -49,7 +53,7 @@ async def select_bus_route_handler(message: types.Message, state: FSMContext):
     await state.update_data(bus_route=message.text)
     bus_route_data = await state.get_data()
     if get_bus_routes(bus_route_data["bus_stop_html"]) is None:
-        await message.answer("Такого маршрута нет или автобусы на данный момент не ходят")
+        await message.answer("По данной остановке не найдено транспортных средств")
         await state.clear()
     else:
         incoming_bus = get_incoming_bus(bus_route_data["bus_route"],

@@ -38,8 +38,9 @@ def get_bus_stop_html(bus_stop_url):
 
 def get_incoming_bus(bus_route, bus_stop_routes_html, bus_stop_name):
     incoming_bus = None
-    for bus_route_data in bus_stop_routes_html:
-        try:
+    try:
+        for bus_route_data in bus_stop_routes_html:
+
             bus_number = bus_route_data.find_next("app-scoreboard-note", {"class": "ng-star-inserted"}) \
                 .find("p", {"class": "info-row__vehicle-number"}).text
             first_incoming_time = bus_route_data.find_next("app-scoreboard-note", {"class": "ng-star-inserted"}) \
@@ -48,16 +49,21 @@ def get_incoming_bus(bus_route, bus_stop_routes_html, bus_stop_name):
                 .find("p", {"class": "info-row__second-time ng-star-inserted"}).text.strip()
             if bus_number == bus_route:
                 incoming_bus = IncomingBus(bus_stop_name, bus_route, first_incoming_time, second_incoming_time)
-        except AttributeError as e:
-            print("Автобусы на данный момент не ходят")
+    except AttributeError as e:
+        incoming_bus = None
+        print("Автобусы на данный момент не ходят")
     return incoming_bus
 
 
 def get_bus_routes(bus_stop_routes_html):
     bus_routes = []
-    for bus_route_data in bus_stop_routes_html:
-        bus_number = bus_route_data.find_next("app-scoreboard-note", {"class": "ng-star-inserted"}) \
-            .find("p", {"class": "info-row__vehicle-number"}).text
-        if bus_number not in bus_routes:
-            bus_routes.append(bus_number)
+    try:
+        for bus_route_data in bus_stop_routes_html:
+            bus_number = bus_route_data.find_next("app-scoreboard-note", {"class": "ng-star-inserted"}) \
+                .find("p", {"class": "info-row__vehicle-number"}).text
+            if bus_number not in bus_routes:
+                bus_routes.append(bus_number)
+    except AttributeError as e:
+        bus_routes = None
+        print("По данной остановке не найдено транспортных средств")
     return bus_routes
