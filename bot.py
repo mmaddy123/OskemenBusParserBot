@@ -6,7 +6,6 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.bot import DefaultBotProperties
 from aiogram.methods import DeleteWebhook
 from aiogram.fsm.storage.memory import MemoryStorage
-# from utils.set_commands import setup_bot_commands
 
 load_dotenv()
 
@@ -21,11 +20,10 @@ bot = Bot(token=os.getenv("BOT_TOKEN"),
 
 
 async def main():
-    # from handlers import dp
     from handlers import common, incoming_bus
 
-    dp.include_router(common.router)
-    dp.include_router(incoming_bus.router)
+    dp.include_router(common.common)
+    dp.include_router(incoming_bus.buses)
 
     await bot(DeleteWebhook(drop_pending_updates=True))
     await dp.start_polling(bot)

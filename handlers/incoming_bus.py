@@ -8,16 +8,16 @@ from oskemen_bus_parser import get_incoming_bus, get_bus_stop_names,\
 from keyboards import create_bus_routes_buttons
 
 
-router = Router()
+buses = Router()
 
 
-@router.message(Command("get_incoming_bus"))
+@buses.message(Command("get_incoming_bus"))
 async def get_incoming_bus_handler(message: types.Message, state: FSMContext):
     await message.answer("Введите название остановки: ")
     await state.set_state(SelectBusStop.bus_stop_name)
 
 
-@router.message(SelectBusStop.bus_stop_name, F.text.in_(get_bus_stop_names().keys()))
+@buses.message(SelectBusStop.bus_stop_name, F.text.in_(get_bus_stop_names().keys()))
 async def select_bus_stop_handler(message: types.Message, state: FSMContext):
     await state.update_data(bus_stop_name=message.text)
     await state.set_state(SelectBusStop.bus_stop_html)
@@ -25,14 +25,14 @@ async def select_bus_stop_handler(message: types.Message, state: FSMContext):
     await get_incoming_bus_html_handler(message, state)
 
 
-@router.message(SelectBusStop.bus_stop_name)
+@buses.message(SelectBusStop.bus_stop_name)
 async def selected_incorrect_bus_stop_handler(message: types.Message):
     await message.answer("Остановки с таким названием не существует\n"
                          "Введите название остановки или посмотрите список доступных"
                          "автобусных остановок через команду /get_bus_stops")
 
 
-@router.message(SelectBusStop.bus_stop_html)
+@buses.message(SelectBusStop.bus_stop_html)
 async def get_incoming_bus_html_handler(message: types.Message, state: FSMContext):
     bus_stop_data = await state.get_data()
     bus_stop_url = get_bus_stop_by_url(bus_stop_data["bus_stop_name"])
@@ -48,7 +48,7 @@ async def get_incoming_bus_html_handler(message: types.Message, state: FSMContex
         await state.set_state(SelectBusStop.bus_route)
 
 
-@router.message(SelectBusStop.bus_route)
+@buses.message(SelectBusStop.bus_route)
 async def select_bus_route_handler(message: types.Message, state: FSMContext):
     await state.update_data(bus_route=message.text)
     bus_route_data = await state.get_data()
