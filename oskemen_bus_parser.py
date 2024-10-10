@@ -9,7 +9,9 @@ IncomingBus = namedtuple('IncomingBus',
 
 # Temporary
 def get_bus_stop_names():
-    return {"Пр.Сатпаева": 304129, "ВКГТУ": 173057}
+    return {"Пр.Сатпаева": 304129, "ВКГТУ": 173057,
+            "Ровесник": 171009,
+            'Ивушка': 458753}
 
 
 def get_bus_stop_by_url(stop):
