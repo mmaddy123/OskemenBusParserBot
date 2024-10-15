@@ -6,6 +6,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.bot import DefaultBotProperties
 from aiogram.methods import DeleteWebhook
 from aiogram.fsm.storage.memory import MemoryStorage
+from middlewares import AllowedUsersMiddleware
 
 load_dotenv()
 
@@ -24,6 +25,8 @@ async def main():
 
     dp.include_router(common.common)
     dp.include_router(incoming_bus.buses)
+
+    dp.update.middleware(AllowedUsersMiddleware())
 
     await bot(DeleteWebhook(drop_pending_updates=True))
     await dp.start_polling(bot)
